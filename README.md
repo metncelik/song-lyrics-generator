@@ -15,13 +15,10 @@ GENIUS_ACCESS_TOKEN=your_genius_api_token
 ```
 
 3. Add queries to the database:
-```python
-from database.client import DatabaseClient
-
-db = DatabaseClient()
-db.cursor.execute("INSERT INTO queries (query_text) VALUES (?)", ("your search query",))
-db.connection.commit()
-db.close()
+First, create a file called `new_queries.txt` in the `scraper` directory and add your queries to it.
+Then, run the following command to add the queries to the database:
+```bash
+python scraper/add_queries.py
 ```
 
 ## Usage
