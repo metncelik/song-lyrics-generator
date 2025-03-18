@@ -48,3 +48,5 @@ Thumbs.db
 # Project specific
 database/database.db
 scraper/new_queries.txt 
+gpt2-song-lyrics
+gpt2-turkish-song-lyrics

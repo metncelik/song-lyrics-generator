@@ -6,7 +6,7 @@ from database.client import DatabaseClient
 
 client = DatabaseClient()
 
-file = open("scraper/new_queries.txt", "r")
+file = open("scrape/new_queries.txt", "r")
 new_queries = file.read().splitlines()
 
 added_query_count = 0
