@@ -44,7 +44,14 @@ def tokenize_function(examples):
 tokenized_train_dataset = train_dataset.map(tokenize_function, batched=True)
 tokenized_eval_dataset = eval_dataset.map(tokenize_function, batched=True)
 
+tokenized_train_dataset = tokenized_train_dataset.remove_columns(["text", "song_title", "artist_name"])
+tokenized_eval_dataset = tokenized_eval_dataset.remove_columns(["text", "song_title", "artist_name"])
+
+tokenized_train_dataset.set_format("torch")
+tokenized_eval_dataset.set_format("torch")
+
 model = AutoModelForCausalLM.from_pretrained("redrussianarmy/gpt2-turkish-cased")
+model.resize_token_embeddings(len(tokenizer))
 
 data_collator = DataCollatorForLanguageModeling(
     tokenizer=tokenizer, 
