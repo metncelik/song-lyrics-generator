@@ -1,6 +1,6 @@
 import re
 import sys
-import numpy as np
+import torch
 from pathlib import Path
 from transformers import AutoTokenizer
 from transformers import TrainingArguments, Trainer
@@ -60,7 +60,6 @@ data_collator = DataCollatorForLanguageModeling(
 
 training_args = TrainingArguments(
     output_dir="gpt2-turkish-song-lyrics",
-    eval_strategy="epoch",
     learning_rate=2e-5,
     weight_decay=0.01,
     evaluation_strategy="epoch",
@@ -70,7 +69,13 @@ training_args = TrainingArguments(
     load_best_model_at_end=True,
     metric_for_best_model="loss",
     greater_is_better=False,
-    # push_to_hub=True,
+    push_to_hub=False,
+    per_device_train_batch_size=8,  
+    per_device_eval_batch_size=8,      
+    num_train_epochs=3,               
+    warmup_steps=500,                 
+    fp16= torch.cuda.is_available(),  
+    gradient_accumulation_steps=4,    
 )
 
 trainer = Trainer(

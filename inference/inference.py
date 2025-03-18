@@ -1,9 +1,8 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
-model_name = "ytu-ce-cosmos/turkish-gpt2-large"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained("redrussianarmy/gpt2-turkish-cased")
+model = AutoModelForCausalLM.from_pretrained("./gpt2-turkish-song-lyrics/checkpoint-69")
 
 input_text = "türkiye bir "
 inputs = tokenizer.encode(input_text, return_tensors="pt")
