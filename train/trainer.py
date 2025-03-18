@@ -11,6 +11,8 @@ from database.client import DatabaseClient
 
 db_client = DatabaseClient()
 
+model_name = "redrussianarmy/gpt2-turkish-cased"
+
 raw_lyrics_data = db_client.get_lyrics(12)
 
 def process_data(lyrics_item):
@@ -35,11 +37,11 @@ train_test_split = lyrics_dataset.train_test_split(test_size=0.1, seed=42)
 train_dataset = train_test_split["train"]
 eval_dataset = train_test_split["test"]
 
-tokenizer = AutoTokenizer.from_pretrained("redrussianarmy/gpt2-turkish-cased")
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.add_special_tokens({'pad_token': '[PAD]'})
 
 def tokenize_function(examples):
-    return tokenizer(examples["text"], padding="max_length", truncation=True)
+    return tokenizer(examples["text"], padding=True, truncation=True)
 
 tokenized_train_dataset = train_dataset.map(tokenize_function, batched=True)
 tokenized_eval_dataset = eval_dataset.map(tokenize_function, batched=True)
@@ -50,7 +52,7 @@ tokenized_eval_dataset = tokenized_eval_dataset.remove_columns(["text", "song_ti
 tokenized_train_dataset.set_format("torch")
 tokenized_eval_dataset.set_format("torch")
 
-model = AutoModelForCausalLM.from_pretrained("redrussianarmy/gpt2-turkish-cased")
+model = AutoModelForCausalLM.from_pretrained(model_name)
 model.resize_token_embeddings(len(tokenizer))
 
 data_collator = DataCollatorForLanguageModeling(
@@ -64,18 +66,18 @@ training_args = TrainingArguments(
     weight_decay=0.01,
     evaluation_strategy="epoch",
     logging_dir="./logs",
-    logging_steps=500,
+    logging_steps=1000,         
     save_strategy="epoch",
     load_best_model_at_end=True,
     metric_for_best_model="loss",
     greater_is_better=False,
     push_to_hub=False,
-    per_device_train_batch_size=8,  
-    per_device_eval_batch_size=8,      
-    num_train_epochs=3,               
-    warmup_steps=500,                 
-    fp16= torch.cuda.is_available(),  
-    gradient_accumulation_steps=4,    
+    per_device_train_batch_size=8, 
+    per_device_eval_batch_size=8,
+    num_train_epochs=3,
+    warmup_steps=200,           
+    fp16=torch.cuda.is_available(),
+    gradient_accumulation_steps=4,
 )
 
 trainer = Trainer(
@@ -89,6 +91,6 @@ trainer = Trainer(
 
 trainer.train()
 
-# Run evaluation
 eval_results = trainer.evaluate()
-print(f"Evaluation results: {eval_results}")
+perplexity = torch.exp(torch.tensor(eval_results["eval_loss"]))
+print(f"Evaluation results: {eval_results}, Perplexity: {perplexity}")
