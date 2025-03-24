@@ -14,7 +14,7 @@ class DatabaseClient:
 
     def initialize_tables(self):
         self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS lyrics 
+            CREATE TABLE IF NOT EXISTS songs 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, song_title TEXT, artist_name TEXT, lyrics TEXT)
         """)
         self.connection.commit()
@@ -28,7 +28,7 @@ class DatabaseClient:
     def is_song_in_db(self, song_title, artist_name):
         self.cursor.execute(
             """
-            SELECT * FROM lyrics 
+            SELECT * from songs 
             WHERE song_title = ? 
             AND artist_name = ?
             """, (song_title, artist_name))
@@ -36,7 +36,7 @@ class DatabaseClient:
 
     def save_lyrics(self, song_title, artist_name, lyrics):
         self.cursor.execute(
-            "INSERT INTO lyrics (song_title, artist_name, lyrics) VALUES (?, ?, ?)",
+            "INSERT INTO songs (song_title, artist_name, lyrics) VALUES (?, ?, ?)",
             (song_title, artist_name, lyrics))
         self.connection.commit()
 
@@ -54,7 +54,7 @@ class DatabaseClient:
 
     def get_lyrics(self, limit):
         self.cursor.execute(
-            "SELECT lyrics, song_title, artist_name FROM lyrics LIMIT ?",
+            "SELECT lyrics, song_title, artist_name from songs LIMIT ?",
             (limit,)
         )
         return self.cursor.fetchall()

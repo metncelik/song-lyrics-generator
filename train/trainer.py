@@ -9,7 +9,6 @@ from datasets import Dataset
 sys.path.append(str(Path(__file__).parent.parent))
 from database.client import DatabaseClient
 
-
 # import torch_xla
 # import torch_xla.core.xla_model as xm
 # import torch_xla.distributed.parallel_loader as pl
@@ -39,9 +38,6 @@ def process_data(lyrics_item):
     lyrics = "<|startofsong|><|startofline|>" + \
         lyrics + "<|endofline|><|endofsong|>"
     lyrics = re.sub(r'\n', '<|endofline|><|startofline|>', lyrics)
-
-    print(lyrics)
-    return
 
     return {
         "text": lyrics,
@@ -111,7 +107,7 @@ training_args = TrainingArguments(
     per_device_eval_batch_size=8,
     num_train_epochs=3,
     warmup_steps=200,
-    tpu_num_cores=8,  # Adjust based on your TPU configuration
+    # tpu_num_cores=8,  
     gradient_accumulation_steps=4,
 )
 
@@ -124,7 +120,6 @@ trainer = Trainer(
     tokenizer=tokenizer,
 )
 
-# Uncomment your training and evaluation code
 trainer.train()
 
 eval_results = trainer.evaluate()
