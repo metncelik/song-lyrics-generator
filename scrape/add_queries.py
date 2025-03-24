@@ -11,6 +11,7 @@ new_queries = file.read().splitlines()
 
 added_query_count = 0
 for query in new_queries:
+    if query == "": continue
     try:
         client.cursor.execute("SELECT * FROM queries WHERE query_text = ?", (query,))
         if client.cursor.fetchone() is None:
