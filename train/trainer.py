@@ -16,31 +16,55 @@ from database.client import DatabaseClient
 
 db_client = DatabaseClient()
 
-model_name = "redrussianarmy/gpt2-turkish-cased"
+model_name = "ByteWave/gpt2-turkish-uncased"
 
-raw_lyrics_data = db_client.get_lyrics(25000)
-
+raw_lyrics_data = db_client.get_lyrics()
 
 def process_data(lyrics_item):
     lyrics = lyrics_item[0]
     song_title = lyrics_item[1]
     artist_name = lyrics_item[2]
 
-    # <|startofsong|> - start of song, <|startofline|> - start of line,
-    # <|endofline|> - end of line - <|endofsong|> - end of song
-
-    # lyrics = re.sub("\"", "", lyrics)
-    # lyrics = "<|startofsong|><|startofline|>" + lyrics
-    # lyrics = re.sub(r'\n', '<|endofline|><|startofline|>', lyrics)
-    # lyrics = lyrics + "<|endofline|><|endofsong|>"
-    # lyrics = re.sub(r'\s+', ' ', lyrics)
-
     lyrics = "<|startofsong|><|startofline|>" + \
         lyrics + "<|endofline|><|endofsong|>"
     lyrics = re.sub(r'\n', '<|endofline|><|startofline|>', lyrics)
+    
+    unwanted = [
+        "\"",
+        ".",
+        ",",
+        "!",
+        "?",
+        ":",
+        ";",
+        "-",
+        "_",
+        "=",
+        "+",
+        "*",
+        "/",
+        ")",
+        "(",
+        "[",
+        "]",
+        "{",
+        "}",
+        ",",
+        "'",
+        "`",
+        "~",
+        "|",
+        "@"
+    ]
+    
+    for unwanted in unwanted:
+        lyrics = lyrics.replace(unwanted, "")
+    
+    lyrics = lyrics.lower()
+    
 
     return {
-        "text": lyrics,
+        "lyrics": lyrics,
         "song_title": song_title,
         "artist_name": artist_name
     }
@@ -63,22 +87,18 @@ tokenizer.add_special_tokens({
     ]
 })
 
-print(tokenizer.special_tokens_map)
-
 tokenizer.save_pretrained("./tokenizer")
 
-
 def tokenize_function(examples):
-    return tokenizer(examples["text"], padding=True, truncation=True)
-
+    return tokenizer(examples["lyrics"], padding=True, truncation=True)
 
 tokenized_train_dataset = train_dataset.map(tokenize_function, batched=True)
 tokenized_eval_dataset = eval_dataset.map(tokenize_function, batched=True)
 
 tokenized_train_dataset = tokenized_train_dataset.remove_columns(
-    ["text", "song_title", "artist_name"])
+    ["lyrics", "song_title", "artist_name"])
 tokenized_eval_dataset = tokenized_eval_dataset.remove_columns(
-    ["text", "song_title", "artist_name"])
+    ["lyrics", "song_title", "artist_name"])
 
 tokenized_train_dataset.set_format("torch")
 tokenized_eval_dataset.set_format("torch")
@@ -93,22 +113,24 @@ data_collator = DataCollatorForLanguageModeling(
 
 training_args = TrainingArguments(
     output_dir="gpt2-turkish-song-lyrics",
-    learning_rate=2e-5,
+    learning_rate=5e-5,
     weight_decay=0.01,
-    evaluation_strategy="epoch",
+    eval_strategy="steps",
+    eval_steps=500,
     logging_dir="./logs",
-    logging_steps=1000,
-    save_strategy="epoch",
+    logging_steps=100,
+    save_strategy="steps",
+    save_steps=500,
     load_best_model_at_end=True,
     metric_for_best_model="loss",
     greater_is_better=False,
     push_to_hub=False,
-    per_device_train_batch_size=8,
-    per_device_eval_batch_size=8,
-    num_train_epochs=3,
-    warmup_steps=200,
-    # tpu_num_cores=8,  
-    gradient_accumulation_steps=4,
+    per_device_train_batch_size=4,
+    per_device_eval_batch_size=4,
+    num_train_epochs=5,
+    warmup_steps=500,
+    fp16=True,
+    gradient_accumulation_steps=8,
 )
 
 trainer = Trainer(
@@ -116,7 +138,7 @@ trainer = Trainer(
     args=training_args,
     train_dataset=tokenized_train_dataset,
     eval_dataset=tokenized_eval_dataset,
-    data_collator=data_collator,
+    data_collator=data_collator,            
     tokenizer=tokenizer,
 )
 

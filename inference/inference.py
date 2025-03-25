@@ -1,40 +1,16 @@
-# from transformers import AutoModelForCausalLM, AutoTokenizer
-# import re
-
-# tokenizer = AutoTokenizer.from_pretrained("redrussianarmy/gpt2-turkish-cased")
-# model = AutoModelForCausalLM.from_pretrained("./gpt2-turkish-song-lyrics/checkpoint-1686")
-
-# input_text = "Uzak "
-# inputs = tokenizer.encode(input_text, return_tensors="pt")
-
-# output = model.generate(
-#     inputs,
-#     max_length=400,
-#     num_return_sequences=1,
-#     no_repeat_ngram_size=2,
-#     top_k=75,
-#     top_p=0.95,   
-#     temperature=0.7
-#     # do_sample=True
-# )
-
-# generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
-
-# generated_text = re.sub(r'(?<!^)([A-Z])', r'\n\1', generated_text)
-# print(generated_text)
-
-
 from transformers import AutoModelForCausalLM, AutoTokenizer
-import re
 import torch
 
-tokenizer = AutoTokenizer.from_pretrained("redrussianarmy/gpt2-turkish-cased")
-model = AutoModelForCausalLM.from_pretrained("./gpt2-turkish-song-lyrics/checkpoint-1686")
+model_path = "ByteWave/gpt2-turkish-uncased"
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+model = AutoModelForCausalLM.from_pretrained(model_path)
 
-# Add the special tokens used during training
 tokenizer.add_special_tokens({
-    'pad_token': '[PAD]',
-    # 'additional_special_tokens': ['[EOL]']
+    'pad_token': '<|pad|>',
+    # 'additional_special_tokens': [
+    #     '<|startofline|>', '<|endofline|>',
+    #     '<|startofsong|>', '<|endofsong|>'
+    # ]
 })
 model.resize_token_embeddings(len(tokenizer))
 
@@ -61,20 +37,19 @@ def generate_lyrics(prompt, max_length=150, temperature=0.8, top_k=75, top_p=0.9
         temperature=temperature,
         do_sample=True,
         pad_token_id=tokenizer.pad_token_id,
-         eos_token_id=tokenizer.convert_tokens_to_ids("test")
+        bos_token_id=tokenizer.convert_tokens_to_ids("<|startofsong|>"),
+        eos_token_id=tokenizer.convert_tokens_to_ids("<|endofsong|>")
     )
     
     generated_text = tokenizer.decode(output[0], skip_special_tokens=False)
-    
-    generated_text = generated_text.replace(' [EOL] ', '\n')
     
     return generated_text
 
 if __name__ == "__main__":
     prompts = [
-        "Pankek ",
-        "Sevgi ",
-        "Hayat "
+        "futbol ",
+        "tekvando ",
+        "aziz yıldırım "
     ]
     
     for prompt in prompts:

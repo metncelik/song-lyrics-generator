@@ -52,11 +52,19 @@ class DatabaseClient:
             (query_text,))
         self.connection.commit()
 
-    def get_lyrics(self, limit):
-        self.cursor.execute(
-            "SELECT lyrics, song_title, artist_name from songs LIMIT ?",
-            (limit,)
-        )
+    def get_lyrics(self, limit = None):
+        query = "SELECT lyrics, song_title, artist_name FROM songs"
+        print(limit)
+        print(limit is not None)
+        if limit is not None:
+            query += f" LIMIT ?"
+            self.cursor.execute(
+                query,
+                (limit, )
+            )
+        else:
+            self.cursor.execute(query)
+        
         return self.cursor.fetchall()
 
     def close(self):
