@@ -133,23 +133,16 @@ if __name__ == '__main__':
         print("? Query: ", query_text)
         print("-------------------")
         
-        eval_song_count = 0
-        eval_in_db_count = 0
-        eval_not_tr_count = 0
-        
         song_ids = get_song_ids(query_text, USE_PROXY)
         for song_id in song_ids:
-            eval_song_count += 1
             try:
                 song_title, artist_name, lyrics_url, language = get_song_details(song_id, USE_PROXY)
                 print("*", song_title, " - ", artist_name)
                 
                 if language != 'tr' or 'Türkçe Çeviri' in song_title:
-                    eval_not_tr_count += 1
                     raise Exception("Song is not turkish")
 
                 if db_client.is_song_in_db(song_title, artist_name):
-                    eval_in_db_count += 1
                     raise Exception("Song already exists in db")
                 
                 html_page = get_lyrics_page(lyrics_url, USE_PROXY)
@@ -160,7 +153,6 @@ if __name__ == '__main__':
                 
             except Exception as e:
                 print("X Error: ", e)
-            print(f"% error_rate: {(eval_in_db_count+eval_not_tr_count)/eval_song_count}. in_db rate: {eval_in_db_count/eval_song_count}")
                 
         db_client.mark_query_as_used(query_text)
     db_client.close()

@@ -22,7 +22,7 @@ class DatabaseClient:
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS queries 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, query_text TEXT UNIQUE, is_used BOOLEAN DEFAULT FALSE)
-        """)
+        """) 
         self.connection.commit()
 
     def is_song_in_db(self, song_title, artist_name):
@@ -52,10 +52,8 @@ class DatabaseClient:
             (query_text,))
         self.connection.commit()
 
-    def get_lyrics(self, limit = None):
+    def get_songs(self, limit = None):
         query = "SELECT lyrics, song_title, artist_name FROM songs"
-        print(limit)
-        print(limit is not None)
         if limit is not None:
             query += f" LIMIT ?"
             self.cursor.execute(
