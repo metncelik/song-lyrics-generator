@@ -2,6 +2,21 @@
 
 A tool to generate song lyrics using a fine-tuned GPT-2 model trained on lyrics scraped from Genius.
 
+## Table of Contents
+
+- [Features](#features)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Scraping Lyrics](#scraping-lyrics)
+- [Training the Model](#training-the-model)
+- [Generating Lyrics](#generating-lyrics)
+- [Model Evaluation](#model-evaluation)
+- [Data Export](#data-export)
+- [Project Structure](#project-structure)
+- [Configuration](#configuration)
+- [Database Structure](#database-structure)
+- [Dependencies](#dependencies)
+
 ## Features
 
 - **Web Scraping**: Automated lyrics collection from Genius API
@@ -81,7 +96,9 @@ Example:
 python inference.py -generate "aşk" metncelik/tr-lyrics-generator-cosmos-gpt2-large
 ```
 
-Fine-tuned models are available at [Hugging Face](https://huggingface.co/metncelik/tr-lyrics-generator-cosmos-gpt2-large) and [Hugging Face](https://huggingface.co/metncelik/tr-lyrics-generator-gpt2-uncased).
+Fine-tuned models:
+- [metncelik/tr-lyrics-generator-cosmos-gpt2-large](https://huggingface.co/metncelik/tr-lyrics-generator-cosmos-gpt2-large)
+- [metncelik/tr-lyrics-generator-gpt2-uncased](https://huggingface.co/metncelik/tr-lyrics-generator-gpt2-uncased)
 
 #### Web Interface
 Launch the interactive Gradio demo:
