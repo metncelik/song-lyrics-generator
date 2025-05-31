@@ -35,6 +35,8 @@ def process_lyrics(lyrics):
     
     lyrics = lyrics.replace("â", "a")
     lyrics = lyrics.replace("ê", "e")
+    lyrics = lyrics.replace("ô", "o")
+    lyrics = lyrics.replace("û", "u")
     
     lyrics = lyrics.lower()
 
@@ -58,3 +60,10 @@ def process_data(lyrics_item):
         "song_title": song_title,
         "artist_name": artist_name
     }
+    
+
+    
+    
+    
+    
+    

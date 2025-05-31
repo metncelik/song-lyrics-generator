@@ -18,53 +18,17 @@ BASE_URL = 'https://api.genius.com'
 
 HEADERS = {'Authorization': f'Bearer {ACCESS_TOKEN}'}
 
-
-def get_free_proxies():
-    url = "https://www.sslproxies.org/"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    proxies = []
-    for row in soup.find("table", {"class": "table-striped"}).find_all("tr")[1:]:
-        tds = row.find_all("td")
-        if len(tds) > 1:
-            ip = tds[0].text
-            port = tds[1].text
-            proxies.append(f"{ip}:{port}")
-    return proxies
-
-
-def make_request_with_proxy(url, headers=None, params=None, use_proxy=False):
-    if not use_proxy:
-        try:
-            response = requests.get(url, headers=headers, params=params, timeout=5)
-            return response
-        except Exception as e:
-            print(f"Failed without proxy: {e}")
-    
-    proxies_list = get_free_proxies()
-    
-    while proxies_list:
-        proxy = random.choice(proxies_list)
-        proxy_dict = {
-            "http": f"http://{proxy}",
-            "https": f"http://{proxy}"
-        }
-        
-        try:
-            response = requests.get(url, headers=headers, params=params, proxies=proxy_dict, timeout=5)
-            print(f"Success with proxy: {proxy}")
-            return response
-        except:
-            print(f"Failed with proxy: {proxy}")
-            proxies_list.remove(proxy)
-    
-    raise Exception("No working proxies found")
-
+def make_request(url, headers=None, params=None):
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=5)
+        return response
+    except Exception as e:
+        print(f"Error: {e}")
 
 def get_song_ids(query, use_proxy=False):
     search_url = BASE_URL + '/search'
     params = {'q': f'{query}'}
-    response = make_request_with_proxy(search_url, headers=HEADERS, params=params, use_proxy=use_proxy)
+    response = make_request(search_url, headers=HEADERS, params=params)
     json_response = response.json()
     song_ids = [hit['result']['id']
                 for hit in json_response['response']['hits']]
@@ -78,7 +42,7 @@ def get_song_id(query, use_proxy=False):
 
 def get_song_details(song_id, use_proxy=False):
     song_url = BASE_URL + '/songs/' + str(song_id)
-    response = make_request_with_proxy(song_url, headers=HEADERS, use_proxy=use_proxy)
+    response = make_request(song_url, headers=HEADERS)
     json_response = response.json()
     song_title = json_response['response']['song']['title']
     artist_name = json_response['response']['song']['primary_artist']['name']
@@ -89,7 +53,7 @@ def get_song_details(song_id, use_proxy=False):
 
 
 def get_lyrics_page(lyrics_url, use_proxy=False):
-    response = make_request_with_proxy(lyrics_url, headers=HEADERS, use_proxy=use_proxy)
+    response = make_request(lyrics_url, headers=HEADERS)
     return response.content
 
 

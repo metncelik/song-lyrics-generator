@@ -56,3 +56,5 @@ checkpoints/
 logs/
 final_model/
 tokenizer/
+*.csv
+dataset/

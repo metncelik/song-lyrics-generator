@@ -1,13 +1,16 @@
-import gradio as gr
 import os
+import sys
+import gradio as gr
 from inference import Model
 
 def get_available_models():
     checkpoints_dir = "checkpoints"
-    return [d for d in os.listdir(checkpoints_dir) if os.path.isdir(os.path.join(checkpoints_dir, d))]
+    local_models = [d for d in os.listdir(checkpoints_dir) if os.path.isdir(os.path.join(checkpoints_dir, d))]
+    remote_models = ["metncelik/tr-lyrics-generator-cosmos-gpt2-large", "metncelik/tr-lyrics-generator-gpt2-uncased"]
+    return local_models + remote_models
 
 def generate_lyrics(model_name, prompt, max_length, temperature, top_k, top_p):
-    model_path = os.path.join("checkpoints", model_name)
+    model_path = model_name.split("/")[-1] if model_name.startswith("checkpoints") else model_name
     model = Model(model_path)
     
     lyrics = model.generate_lyrics(
@@ -67,7 +70,7 @@ with gr.Blocks(title="Şarkı Sözü Oluşturucu") as demo:
                     label="Top P"
                 )
             
-            generate_btn = gr.Button("Generate Lyrics", variant="primary")
+            generate_btn = gr.Button("Oluştur", variant="primary")
         
         with gr.Column():
             output = gr.Textbox(
@@ -90,4 +93,5 @@ with gr.Blocks(title="Şarkı Sözü Oluşturucu") as demo:
     )
 
 if __name__ == "__main__":
-    demo.launch()
+    share = len(sys.argv) > 1 and ("--share" in sys.argv)
+    demo.launch(share=share)

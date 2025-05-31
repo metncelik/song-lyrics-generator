@@ -1,4 +1,4 @@
-MODEL_NAME = "gpt2" 
+MODEL_NAME = "ytu-ce-cosmos/turkish-gpt2-large" 
 MAX_LENGTH = 512
 
 TEST_SIZE = 0.1  

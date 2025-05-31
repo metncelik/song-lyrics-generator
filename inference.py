@@ -1,6 +1,7 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 from utils import process_lyrics
+import sys
 
 class Model:
     def __init__(self, path):
@@ -62,14 +63,12 @@ class Model:
         return generated_text
 
 if __name__ == "__main__":
-    model = Model("checkpoints/checkpoint-14.4")
-    prompts = [
-        "bu dünya ",
-        "."
-    ]
-    
-    for prompt in prompts:
-        print(f"\n--- Generating lyrics for prompt: '{prompt}' ---\n")
+    if len(sys.argv) > 1 and "-generate" in sys.argv:
+        prompt = sys.argv[2] if len(sys.argv) > 2 else "."
+        model_path = sys.argv[3] if len(sys.argv) > 3 else "metncelik/tr-lyrics-generator-cosmos-gpt2-large"
+        model = Model(model_path)
         lyrics = model.generate_lyrics(prompt)
         print(lyrics)
-        print("\n" + "-" * 50)
+        print(f"Model: {model_path}")
+    else:
+        print("Usage: python inference.py -generate <prompt> <model_path>")

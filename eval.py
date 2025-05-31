@@ -1,18 +1,19 @@
-# TODO train with startofsong and endofsong tokens
-
-import re
 import sys
 import torch
 from pathlib import Path
 from transformers import AutoTokenizer
-from transformers import TrainingArguments, Trainer
-from transformers import AutoModelForCausalLM, DataCollatorForLanguageModeling
+from transformers import AutoModelForCausalLM
 from datasets import Dataset
 sys.path.append(str(Path(__file__).parent.parent))
 from database.client import DatabaseClient
 from utils import process_data
 
-model_name = "checkpoints/checkpoint-14.4"
+# Get model path from command line arguments
+if len(sys.argv) < 2:
+    print("Usage: python eval.py <model_path>")
+    sys.exit(1)
+
+model_path = sys.argv[1]
 
 db_client = DatabaseClient()
 raw_songs_data = db_client.get_songs()
@@ -26,7 +27,7 @@ train_test_split = songs_dataset.train_test_split(test_size=0.1, seed=42)
 train_dataset = train_test_split["train"]
 eval_dataset = train_test_split["test"]
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_path)
 tokenizer.add_special_tokens({
     'pad_token': '<|pad|>',
     # 'additional_special_tokens': [
@@ -51,7 +52,7 @@ tokenized_eval_dataset = tokenized_eval_dataset.remove_columns(
 tokenized_train_dataset.set_format("torch")
 tokenized_eval_dataset.set_format("torch")
 
-model = AutoModelForCausalLM.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_path)
 model.resize_token_embeddings(len(tokenizer))
 
 model.eval()
