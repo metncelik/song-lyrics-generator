@@ -2,6 +2,9 @@
 
 A tool to generate song lyrics using a fine-tuned GPT-2 model trained on lyrics scraped from Genius.
 
+- Dataset: [metncelik/turkish-song-lyrics](https://huggingface.co/datasets/metncelik/turkish-song-lyrics)
+- Models: [metncelik/tr-lyrics-generator-cosmos-gpt2-large](https://huggingface.co/metncelik/tr-lyrics-generator-cosmos-gpt2-large), [metncelik/tr-lyrics-generator-gpt2-uncased](https://huggingface.co/metncelik/tr-lyrics-generator-gpt2-uncased)
+
 ## Table of Contents
 
 - [Features](#features)
